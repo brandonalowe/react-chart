@@ -5,6 +5,7 @@ import {
 } from '@highcharts/react'
 import { useEffect, useRef } from 'react'
 
+
 function App() {
   let random_numbers = []
   for (let i = 0; i < 3; i++) {
@@ -13,15 +14,19 @@ function App() {
 
   const chartRef = useRef(null);
 
-
   useEffect(() => {
+    // Reference to the Highcharts Chart
     const chart = chartRef.current?.chart;
     if (!chart) return;
+
+    // Want to attach a listener event to each of the series in Chart
+    // The same can be achieved with the legend.events.itemClick, however thee event
+    // does not give you access to the specifc series that was clicked.
     chart.series.forEach((series) => {
+      // Include this flag as to avoid duplicate event listeners being added due to re-renders.
       if (!series.userOptions._legendClickAttached) {
         Highcharts.addEvent(series, 'legendItemClick', function (event) {
           event.preventDefault();
-
           const clickedSeries = this,
           allSeriesVisible = chart.series.every(s => s.visible || s === clickedSeries),
           isOnlyVisible = chart.series.every(s => !s.visible || s === clickedSeries);
@@ -41,7 +46,7 @@ function App() {
           chart.redraw();
           return false;
         });
-
+        // Set flag to true once event listener has been added.
         series.userOptions._legendClickAttached = true;
       }
     });
